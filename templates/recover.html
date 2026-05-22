@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Recuperar cuenta</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="page-shell">
+        <section class="glass-card auth-card">
+            <div class="auth-header">
+                <div class="brand-mark">⟡</div>
+                <div>
+                    <h1>Recuperar cuenta</h1>
+                    <p>Obtén un enlace seguro para restablecer tu contraseña y volver a entrar.</p>
+                </div>
+            </div>
+
+            {% if error %}
+                <div class="message error">{{ error }}</div>
+            {% endif %}
+            {% if message %}
+                <div class="message success">{{ message }}</div>
+            {% endif %}
+
+            <form class="auth-form" method="POST">
+                <input type="email" name="email" placeholder="Correo electrónico" value="{{ email or '' }}" required class="form-field">
+                <button type="submit" class="btn btn-primary">Enviar enlace</button>
+            </form>
+
+            <div class="auth-footer">
+                <a href="/login">Volver al inicio de sesión</a>
+            </div>
+        </section>
+    </div>
+</body>
+</html>

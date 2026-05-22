@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iniciar sesión</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="page-shell">
+        <section class="glass-card auth-card">
+            <div class="auth-header">
+                <div class="brand-mark">⟡</div>
+                <div>
+                    <h1>Iniciar sesión</h1>
+                    <p>Accede a tu espacio fotográfico con un diseño inspirado en la tecnología.</p>
+                </div>
+            </div>
+
+            {% if message %}
+                <div class="message success">{{ message }}</div>
+            {% endif %}
+
+            <form class="auth-form" method="POST">
+                <input type="email" name="email" placeholder="Correo electrónico" required class="form-field">
+                <input type="password" name="password" placeholder="Contraseña" required class="form-field">
+                <button type="submit" class="btn btn-primary">Entrar</button>
+            </form>
+
+            <div class="auth-footer">
+                <a href="/register">¿No tienes cuenta? Regístrate</a>
+                <a href="/recover">¿Olvidaste tu contraseña?</a>
+            </div>
+        </section>
+    </div>
+</body>
+</html>

@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registrarse</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="page-shell">
+        <section class="glass-card auth-card">
+            <div class="auth-header">
+                <div class="brand-mark">⟡</div>
+                <div>
+                    <h1>Crear cuenta</h1>
+                    <p>Empieza a guardar tus fotos y enlaces en un entorno limpio y moderno.</p>
+                </div>
+            </div>
+
+            <form class="auth-form" method="POST">
+                <input type="email" name="email" placeholder="Correo electrónico" required class="form-field">
+                <input type="password" name="password" placeholder="Contraseña" required class="form-field">
+                <button type="submit" class="btn btn-primary">Crear cuenta</button>
+            </form>
+
+            <div class="auth-footer">
+                <a href="/login">¿Ya tienes cuenta? Inicia sesión</a>
+                <a href="/recover">¿Olvidaste tu contraseña?</a>
+            </div>
+        </section>
+    </div>
+</body>
+</html>
