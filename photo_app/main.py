@@ -4,6 +4,9 @@ import mimetypes
 import os
 import re
 import secrets
+import smtplib
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
 from functools import wraps
 from pathlib import Path
 from typing import Any
@@ -21,7 +24,6 @@ from flask import (
 from werkzeug.security import check_password_hash, generate_password_hash
 from werkzeug.utils import secure_filename
 
-
 BASE_DIR = Path(__file__).resolve().parent
 ROOT_DIR = BASE_DIR.parent
 TEMPLATES_DIR = ROOT_DIR / "templates"
@@ -37,6 +39,11 @@ app = Flask(
 )
 app.secret_key = os.environ.get("SECRET_KEY", "photo-app-dev-secret")
 app.config["UPLOAD_FOLDER"] = str(UPLOAD_DIR)
+
+app.config["SMTP_SERVER"] = os.environ.get("SMTP_SERVER", "smtp.gmail.com")
+app.config["SMTP_PORT"] = int(os.environ.get("SMTP_PORT", "587"))
+app.config["SMTP_USERNAME"] = os.environ.get("SMTP_USERNAME", "tu_correo@gmail.com")
+app.config["SMTP_PASSWORD"] = os.environ.get("SMTP_PASSWORD", "tu_contraseña_de_aplicacion")
 
 users: dict[str, dict[str, str]] = {}
 reset_tokens: dict[str, str] = {}
@@ -97,6 +104,43 @@ def infer_file_type(content_type: str | None, filename: str) -> str:
     if mime_type == "application/pdf":
         return "pdf"
     return "file"
+
+
+def send_recovery_email(target_email: str, reset_link: str) -> bool:
+    msg = MIMEMultipart()
+    msg["From"] = app.config["SMTP_USERNAME"]
+    msg["To"] = target_email
+    msg["Subject"] = "Restablece tu contraseña - Vault App"
+
+    html = f"""
+    <html>
+        <body style="font-family: sans-serif; color: #333;">
+            <div style="max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px;">
+                <h2 style="color: #4A90E2;">Restablecer contraseña</h2>
+                <p>Has solicitado restablecer tu contraseña. Haz clic en el siguiente enlace para continuar:</p>
+                <p style="margin: 25px 0;">
+                    <a href="{reset_link}" style="background-color: #4A90E2; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; font-weight: bold;">
+                        Restablecer Contraseña
+                    </a>
+                </p>
+                <p style="font-size: 12px; color: #777;">Si no solicitaste esto, puedes ignorar este correo de forma segura.</p>
+                <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
+                <p style="font-size: 11px; color: #aaa;">Si el botón no funciona, copia y pega este enlace en tu navegador:<br>{reset_link}</p>
+            </div>
+        </body>
+    </html>
+    """
+    msg.attach(MIMEText(html, "html"))
+
+    try:
+        server = smtplib.SMTP(app.config["SMTP_SERVER"], app.config["SMTP_PORT"])
+        server.starttls()
+        server.login(app.config["SMTP_USERNAME"], app.config["SMTP_PASSWORD"])
+        server.sendmail(app.config["SMTP_USERNAME"], target_email, msg.as_string())
+        server.quit()
+        return True
+    except Exception:
+        return False
 
 
 @app.route("/")
@@ -199,21 +243,16 @@ def recover():
                 email=raw_email,
             )
 
-        if email not in users:
-            return render_template(
-                "recover.html",
-                message="Si el correo existe, te mostramos un enlace de restablecimiento.",
-                email=email,
-            )
+        if email in users:
+            token = secrets.token_urlsafe(24)
+            reset_tokens[token] = email
+            reset_link = url_for("reset_password", token=token, _external=True)
+            send_recovery_email(email, reset_link)
 
-        token = secrets.token_urlsafe(24)
-        reset_tokens[token] = email
-        reset_link = url_for("reset_password", token=token, _external=True)
         return render_template(
             "recover.html",
-            message="Se generó un enlace de restablecimiento.",
+            message="Si el correo está registrado, recibirás un enlace para restablecer tu contraseña en unos minutos.",
             email=email,
-            reset_link=reset_link,
         )
 
     return render_template("recover.html")
@@ -326,7 +365,7 @@ def delete_file(filename: str):
             if file_path.exists():
                 file_path.unlink()
             continue
-        remaining.append(record)
+            remaining.append(record)
 
     file_records[:] = remaining
     return redirect(url_for("dashboard", message="Archivo eliminado." if removed else "No se encontró el archivo."))
