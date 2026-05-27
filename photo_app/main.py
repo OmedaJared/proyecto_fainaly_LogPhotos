@@ -42,8 +42,8 @@ app.config["UPLOAD_FOLDER"] = str(UPLOAD_DIR)
 
 app.config["SMTP_SERVER"] = os.environ.get("SMTP_SERVER", "smtp.gmail.com")
 app.config["SMTP_PORT"] = int(os.environ.get("SMTP_PORT", "587"))
-app.config["SMTP_USERNAME"] = os.environ.get("SMTP_USERNAME", "tu_correo@gmail.com")
-app.config["SMTP_PASSWORD"] = os.environ.get("SMTP_PASSWORD", "tu_contraseña_de_aplicacion")
+app.config["SMTP_USERNAME"] = os.environ.get("SMTP_USERNAME", "bebeton1809@gmail.com")
+app.config["SMTP_PASSWORD"] = os.environ.get("SMTP_PASSWORD", "hwzm fviu sidb lrme")
 
 users: dict[str, dict[str, str]] = {}
 reset_tokens: dict[str, str] = {}
