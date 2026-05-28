@@ -11,3 +11,7 @@ dependencies = [
     "pymongo>=4.17.0",
     "werkzeug>=3.1.8",
 ]
+Para poder correr el programa tenemos que instalar ngrok en la aplicacion de microsoft store.
+Despues vamos a ejecutarlo como administrador ngrok una vez ya instalado
+tenemos que tener una cuenta creada en ngrok
+despues 
