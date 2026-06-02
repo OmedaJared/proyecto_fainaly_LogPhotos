@@ -111,24 +111,7 @@ def send_recovery_email(target_email: str, reset_link: str) -> bool:
     msg["To"] = target_email
     msg["Subject"] = "Restablece tu contraseña - Vault App"
 
-    html = f"""
-    <html>
-        <body style="font-family: sans-serif; color: #333;">
-            <div style="max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px;">
-                <h2 style="color: #4A90E2;">Restablecer contraseña</h2>
-                <p>Has solicitado restablecer tu contraseña. Haz clic en el siguiente enlace para continuar:</p>
-                <p style="margin: 25px 0;">
-                    <a href="{reset_link}" style="background-color: #4A90E2; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; font-weight: bold;">
-                        Restablecer Contraseña
-                    </a>
-                </p>
-                <p style="font-size: 12px; color: #777;">Si no solicitaste esto, puedes ignorar este correo de forma segura.</p>
-                <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
-                <p style="font-size: 11px; color: #aaa;">Si el botón no funciona, copia y pega este enlace en tu navegador:<br>{reset_link}</p>
-            </div>
-        </body>
-    </html>
-    """
+    html = render_template("reset_email.html", reset_link=reset_link)
     msg.attach(MIMEText(html, "html"))
 
     try:
