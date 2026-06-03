@@ -5,216 +5,6 @@ Olmeda Castillo Jared Fernando
 Almanza Garcia Dylan Kareem
 24308060610588@cetis61.edu.mx
 
-Sistema de Autenticación
-
-Este proyecto es un sistema básico de inicio de sesión, registro y recuperación de contraseña usando Flask y MongoDB Atlas.
-
-## Para qué sirve cada librería
-
-- `flask`
-  - Framework principal para crear la aplicación web.
-  - Maneja rutas, renderizado de plantillas y servidor local.
-
-- `flask-login`
-  - Administra el inicio de sesión de usuarios.
-  - Controla sesiones, protección de rutas y estados de usuario autenticado.
-
-- `flask-wtf`
-  - Proporciona integración de formularios con Flask.
-  - Maneja validación de formularios y protección CSRF.
-
-- `wtforms`
-  - Define los campos de formulario y las reglas de validación.
-  - Se usa para crear los formularios de login, registro y reset.
-
-- `pymongo`
-  - Conecta la aplicación a MongoDB.
-  - Permite leer y escribir datos de usuarios en la base de datos.
-
-- `bcrypt`
-  - Encripta las contraseñas antes de guardarlas en la base de datos.
-  - Verifica contraseñas de forma segura.
-
-- `flask-mail`
-  - Envía correos electrónicos desde Flask.
-  - Se usa para enviar enlaces de recuperación de contraseña.
-
-- `python-dotenv`
-  - Carga variables de entorno desde el archivo `.env`.
-  - Permite mantener claves y configuraciones fuera del código.
-
-- `dnspython`
-  - Dependencia de `pymongo` para resolver URIs `mongodb+srv`.
-
-## Explicación de `app.py`
-
-### Configuración inicial
-
-- `load_dotenv()`
-  - Carga las variables del archivo `.env`.
-
-- `app = Flask(__name__)`
-  - Crea la aplicación Flask.
-
-- `app.config[...]`
-  - Configura la clave secreta, correo y otros ajustes.
-
-### Configuración de `Mail` y `LoginManager`
-
-- `mail = Mail(app)`
-  - Inicializa el envío de correos.
-
-- `login_manager = LoginManager()`
-  - Configura la lógica de login.
-
-- `login_manager.login_view = 'login'`
-  - Define la página de redirección cuando el usuario no está autenticado.
-
-### Conexión a MongoDB
-
-- `mongo_uri = os.getenv('MONGO_URI')`
-  - Lee la cadena de conexión desde `.env`.
-
-- `MongoClient(mongo_uri, serverSelectionTimeoutMS=5000)`
-  - Intenta conectarse a MongoDB en 5 segundos.
-
-- `client.admin.command('ping')`
-  - Verifica que la conexión esté activa.
-
-- Si el URI es un placeholder, el código usa un fallback local:
-  - `mongodb://localhost:27017/trevi3`
-
-- `db = client['trevi3']`
-  - Selecciona la base de datos `trevi3`.
-
-- `users_collection = db['users']`
-  - Colección para guardar usuarios.
-
-- `reset_tokens_collection = db['reset_tokens']`
-  - Colección para guardar tokens de recuperación.
-
-### Clase `User`
-
-- `class User(UserMixin):`
-  - Define el usuario que usa Flask-Login.
-
-- `self.id = str(user_data['_id'])`
-  - Usa el `_id` de MongoDB como identificador.
-
-- `self.email = user_data['email']`
-  - Guarda el email para mostrarlo y verificarlo.
-
-### Función `load_user`
-
-- `@login_manager.user_loader`
-  - Carga el usuario desde la sesión.
-
-- Busca el usuario en MongoDB por `_id`.
-
-### Formularios
-
-- `LoginForm`
-  - Campos: `email`, `password`, `submit`.
-  - Valida que el email y la contraseña existan.
-
-- `RegisterForm`
-  - Campos: `email`, `password`, `confirm_password`, `submit`.
-  - Valida contraseña mínima y coincidencia.
-
-- `ResetForm`
-  - Campo: `email`.
-  - Envía la solicitud de recuperación.
-
-- `ResetPasswordForm`
-  - Campos: `password`, `confirm_password`, `submit`.
-  - Permite establecer nueva contraseña.
-
-### Rutas
-
-- `/` - `home()`
-  - Ruta protegida con `@login_required`.
-  - Muestra la página principal después de iniciar sesión.
-
-- `/login` - `login()`
-  - Muestra el formulario de login.
-  - Si los datos son correctos, autentica y redirige a `/`.
-  - Usa `checkpw()` de `bcrypt` para verificar la contraseña.
-
-- `/register` - `register()`
-  - Muestra formulario de registro.
-  - Verifica que el email no exista.
-  - Hashea la contraseña con `hashpw()` y la guarda en MongoDB.
-
-- `/reset` - `reset()`
-  - Muestra el formulario de recuperación.
-  - Si el email existe, crea un token único.
-  - Envía un correo con el enlace de recuperación.
-
-- `/reset/<token>` - `reset_password(token)`
-  - Verifica que el token exista.
-  - Permite guardar la nueva contraseña.
-  - Borra el token después de usarlo.
-
-- `/logout` - `logout()`
-  - Cierra la sesión del usuario.
-  - Redirige a la página de login.
-
-## Archivos de plantillas
-
-- `templates/base.html`
-  - Plantilla base común para todas las páginas.
-
-- `templates/login.html`
-  - Formulario de inicio de sesión.
-
-- `templates/register.html`
-  - Formulario de registro de usuario.
-
-- `templates/reset.html`
-  - Formulario para pedir el enlace de recuperación.
-
-- `templates/reset_password.html`
-  - Formulario para escribir la nueva contraseña.
-
-- `templates/home.html`
-  - Página principal para usuarios autenticados.
-
-## Cómo ejecutar
-
-1. Abre la terminal en la carpeta del proyecto.
-2. Activa el entorno virtual:
-   - `& ".venv\Scripts\Activate.ps1"`
-3. Ejecuta la aplicación:
-   - `uv run flask run`
-4. Abre `http://127.0.0.1:5000/` en el navegador.
-
-## Variables de entorno necesarias
-
-- `MONGO_URI` - Cadena de conexión de MongoDB Atlas.
-- `SECRET_KEY` - Clave secreta para Flask.
-- `MAIL_SERVER`, `MAIL_PORT`, `MAIL_USE_TLS`, `MAIL_USERNAME`, `MAIL_PASSWORD` - Configuración de correo.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 # photo-app
 
@@ -728,6 +518,60 @@ Permite dos modos:
 
 ---
 
+## Documentación de Plantillas (HTML)
+
+Las plantillas se encuentran en la carpeta `templates/` y utilizan el motor **Jinja2** para renderizar contenido dinámico enviado desde Flask.
+
+### 1. `login.html`
+- **Propósito**: Interfaz de acceso para usuarios registrados.
+- **Funcionalidad**: Contiene un formulario que envía el correo y la contraseña a la ruta `/login`.
+- **Elementos**: Campos de entrada de texto, manejo de mensajes de error dinámicos y un enlace hacia la recuperación de contraseña y registro.
+
+### 2. `register.html`
+- **Propósito**: Interfaz para la creación de nuevas cuentas.
+- **Funcionalidad**: Captura el correo electrónico y la contraseña. Informa al usuario si el correo tiene un formato inválido o si ya está en uso.
+- **Elementos**: Formulario de registro y validación visual de requisitos mínimos.
+
+### 3. `recover.html`
+- **Propósito**: Punto de inicio para la recuperación de cuentas.
+- **Funcionalidad**: Solicita el correo del usuario. Si existe, el backend genera un token de seguridad.
+- **Mensajes**: Muestra una confirmación genérica para evitar la enumeración de usuarios por parte de terceros.
+
+### 4. `reset.html`
+- **Propósito**: Formulario para establecer una nueva contraseña.
+- **Seguridad**: Solo accesible a través de un enlace con un token válido enviado por correo.
+- **Funcionalidad**: Permite al usuario ingresar su nueva contraseña y actualizar su perfil.
+
+### 5. `dashboard.html`
+- **Propósito**: Panel principal de gestión de archivos y enlaces.
+- **Componentes Clave**:
+    - **Navegación por Categorías**: Filtros dinámicos basados en la lista `CATEGORIES`.
+    - **Grilla de Contenido**: Renderiza tarjetas (cards) diferenciando entre fotos, videos, PDFs y archivos generales.
+    - **Gestión de Enlaces**: Sección específica para visualizar y eliminar URLs guardadas.
+    - **Formulario de Carga**: Permite tanto la selección de archivos locales como la entrada de URLs de forma simultánea o independiente.
+- **Acciones**: Botones de eliminación que activan las rutas `/delete/` y `/delete_link/`.
+
+### 6. `emails/recovery_email.html`
+- **Propósito**: Plantilla de correo electrónico profesional.
+- **Contenido**: Estructura el mensaje que recibe el usuario, incluyendo un botón o enlace directo con el token de recuperación generado por `secrets`.
+
+---
+
+## Documentación de Estilos (CSS)
+
+El diseño visual se gestiona en la carpeta `static/` y se enfoca en la usabilidad y un aspecto moderno (estilo "Vault").
+
+### Arquitectura de Diseño
+- **Layout (Diseño)**: Se utiliza **CSS Grid** para la disposición de los archivos en el dashboard, permitiendo una organización fluida de las tarjetas de archivos.
+- **Responsividad**: Implementación de *media queries* para asegurar que los formularios y el panel de control se adapten correctamente a dispositivos móviles.
+- **Componentes UI**:
+    - **Botones**: Diferenciación clara entre acciones primarias (Subir/Guardar) y acciones de peligro (Eliminar).
+    - **Alertas**: Estilos específicos para mensajes de éxito (verdes) y errores (rojos) que aparecen sobre los formularios.
+    - **Cards**: Estilización de contenedores para archivos que incluyen sombras, bordes redondeados y estados de *hover* para mejorar la interacción.
+- **Tipografía y Colores**: Uso de fuentes legibles y una paleta de colores coherente con una aplicación de "bóveda" o almacenamiento seguro.
+
+---
+
 ## Flujo completo de uso
 
 ### Registro
@@ -864,330 +708,3 @@ Si quieres seguir documentando el proyecto, los siguientes pasos serían:
 ## Licencia
 
 Aún no se ha definido una licencia en el repositorio.
-
-
-
-
-
-
-
-
-
-
-
-
-# photo-app
-
-`photo-app` es una aplicación web funcional desarrollada con Flask que permite la gestión de archivos y enlaces organizados por categorías, con un sistema completo de usuarios.
-
----
-
-## Resumen del proyecto
-
-El archivo `main.py` ya no es un punto de entrada básico, sino que implementa toda la lógica del servidor web. Actualmente, el proyecto permite:
-
-- **Autenticación completa**: Registro, inicio y cierre de sesión de usuarios.
-- **Seguridad**: Hasheo de contraseñas con Werkzeug.
-- **Recuperación de cuenta**: Sistema de restablecimiento de contraseña mediante envío de correos electrónicos (SMTP).
-- **Gestión de archivos**: Subida de archivos físicos y guardado de enlaces URL.
-- **Categorización automática**: Clasificación de contenido en Fotos, Videos, Links o Archivos según su tipo MIME.
-
-- aplicación web con Flask,
-- validación de correos,
-- persistencia con MongoDB,
-- manejo de archivos,
-- seguridad de contraseñas con Werkzeug.
-
-Sin embargo, el archivo `main.py` todavía no implementa la lógica de la app web; por ahora solo sirve como entrada básica.
-
----
-
-## Tecnologías y librerías instaladas
-
-Las dependencias definidas en `photo_app/pyproject.toml` son las siguientes:
-
-### 1. `flask>=3.1.3`
-Framework web principal.
-
-#### Para qué sirve
-- Crear rutas HTTP.
-- Renderizar vistas.
-- Manejar solicitudes `GET`, `POST`, etc.
-- Gestionar sesiones, cookies y contexto de petición.
-- Construir una aplicación web tradicional o una API.
-
-#### Uso típico en este proyecto
-Aunque todavía no se usa en `main.py`, está pensada para:
-- formularios de login/registro,
-- páginas HTML,
-- endpoints para subida de archivos,
-- recuperación de contraseña,
-- manejo de sesión de usuario.
-
----
-
-### 2. `pymongo>=4.17.0`
-Driver oficial de MongoDB para Python.
-
-#### Para qué sirve
-- Conectarse a una base de datos MongoDB.
-- Insertar documentos.
-- Buscar documentos.
-- Actualizar registros.
-- Eliminar documentos.
-
-#### Uso típico en este proyecto
-Está orientada a guardar información como:
-- usuarios,
-- archivos subidos,
-- tokens de recuperación,
-- metadatos de contenido.
-
----
-
-### 3. `flask-pymongo>=3.0.1`
-Integración entre Flask y MongoDB.
-
-#### Para qué sirve
-- Simplifica el uso de MongoDB dentro de una app Flask.
-- Permite configurar la conexión desde la app Flask de forma más limpia.
-- Facilita el acceso a colecciones desde la aplicación.
-
-#### Ventaja
-Reduce la cantidad de código de conexión manual frente a usar solo `pymongo`.
-
----
-
-### 4. `werkzeug>=3.1.8`
-Biblioteca base usada por Flask.
-
-#### Para qué sirve
-- Seguridad de contraseñas con `generate_password_hash` y `check_password_hash`.
-- Utilidades para manejo de peticiones y respuestas.
-- Manejo de archivos con `secure_filename`.
-- Parte interna de la infraestructura de Flask.
-
-#### Uso típico en este proyecto
-Ideal para:
-- encriptar contraseñas de usuarios,
-- validar contraseñas,
-- sanitizar nombres de archivo antes de guardarlos.
-
----
-
-### 5. `email-validator>=2.3.0`
-Librería de validación de direcciones de correo electrónico.
-
-#### Para qué sirve
-- Verificar si un email tiene formato válido.
-- Evitar guardar direcciones mal escritas.
-- Mejorar formularios de registro y recuperación de cuenta.
-
----
-
-## Estructura actual del proyecto
-
-Actualmente los archivos principales son:
-
-```text
-photo_app/
-├── main.py
-├── pyproject.toml
-├── README.md
-└── uv.lock
-```
-
-### `main.py`
-Punto de entrada mínimo del proyecto.
-
-### `pyproject.toml`
-Archivo de configuración del proyecto y dependencias.
-
-### `README.md`
-Documentación del proyecto.
-
-### `uv.lock`
-Bloqueo de versiones exactas de dependencias para reproducibilidad.
-## Archivo `main.py`
-
-Contenido actual:
-
-```python
-def main():
-    print("Hello from photo-app!")
-
-
-if __name__ == "__main__":
-    main()
-```
-
-### Función `main()`
-
-#### Responsabilidad
-Es la función principal del programa.
-
-#### Qué hace
-- Imprime en consola el texto `Hello from photo-app!`.
-
-#### Observaciones técnicas
-- No recibe parámetros.
-- No devuelve nada explícitamente.
-- Sirve como base para crecer a una app más completa.
-- Hoy funciona como demostración de arranque.
-
----
-
-### Bloque `if __name__ == "__main__":`
-
-#### Responsabilidad
-Permite ejecutar `main()` solo cuando el archivo se corre directamente.
-
-#### Qué significa
-- Si ejecutas `python main.py`, se llama a `main()`.
-- Si importas `main.py` desde otro módulo, no se ejecuta automáticamente.
-
-#### Beneficio
-Es la forma estándar en Python para separar:
-- ejecución directa del script,
-- reutilización como módulo importable.
-
----
-
-## Funciones y responsabilidades del código actual
-
-Por ahora, el proyecto tiene una sola función propia:
-
-### `main()`
-- Punto de inicio.
-- Imprime un mensaje simple.
-- No depende de otras partes del proyecto.
-- Todavía no inicia servidor web, no conecta a base de datos, y no procesa formularios.
-
----
-
-## Lo que el proyecto ya está preparado para hacer
-
-Aunque el código visible es mínimo, las dependencias muestran una intención clara de crecimiento hacia una app con estas capacidades:
-
-### Autenticación
-- registro de usuarios,
-- inicio de sesión,
-- hash seguro de contraseñas,
-- validación de credenciales.
-
-### Base de datos
-- guardar usuarios en MongoDB,
-- almacenar metadatos,
-- persistir estados de recuperación de cuenta.
-
-### Manejo de archivos
-- subir archivos,
-- validar nombres de archivo,
-- asociar archivos a usuarios.
-
-### Validación de formularios
-- comprobar emails,
-- validar entradas antes de procesarlas.
-
----
-
-## Flujo esperado de una futura versión del proyecto
-
-Un flujo lógico para esta base podría ser:
-
-1. El usuario abre la aplicación web.
-2. Se muestra una pantalla de registro o login.
-3. El sistema valida el correo con `email-validator`.
-4. La contraseña se guarda con hash usando `werkzeug`.
-5. Los datos del usuario se almacenan en MongoDB.
-6. El usuario inicia sesión.
-7. Se pueden subir archivos y guardar sus metadatos.
-8. La app usa Flask para servir rutas y páginas.
-
----
-
-## Instalación
-
-### Requisitos
-- Python 3.13 o superior
-- Acceso a MongoDB si se va a implementar la parte de persistencia
-- `uv` o `pip` para gestionar dependencias
-
-### Instalar dependencias
-Si usas `uv`:
-
-```bash
-uv sync
-```
-
-Si usas `pip`:
-
-```bash
-pip install flask flask-pymongo pymongo werkzeug email-validator
-```
-
----
-
-## Ejecución
-
-Actualmente, el proyecto solo imprime un mensaje desde consola.
-
-### Ejecutar el script actual
-```bash
-python main.py
-```
-
-### Salida esperada
-```text
-Hello from photo-app!
-```
-
----
-
-## Convenciones y buenas prácticas observables
-
-### Punto de entrada claro
-`main.py` usa el patrón estándar de Python para ejecución directa.
-
-### Configuración centralizada de dependencias
-Las librerías se definen en `pyproject.toml`, lo que facilita reproducibilidad.
-
-### Preparación para escalar
-Las dependencias instaladas sugieren que el proyecto está pensado para evolucionar hacia una aplicación completa con backend web y base de datos.
-
----
-
-## Estado actual del código
-
-### Implementado
-- Archivo principal con función `main()`
-- Gestión moderna de dependencias en `pyproject.toml`
-- Dependencias listas para una app Flask + MongoDB
-
-### Aún no implementado
-- rutas web,
-- plantillas HTML,
-- conexión real a MongoDB en el código visible,
-- autenticación,
-- subida de archivos,
-- validación de formularios,
-- sistema de emails,
-- manejo de sesiones web.
-
----
-
-## Próximos pasos recomendados
-
-
-- estructura real de carpetas de la aplicación,
-- rutas y funciones de cada módulo,
-- variables de entorno necesarias,
-- endpoints disponibles,
-- ejemplo de uso de MongoDB,
-- flujo de autenticación y recuperación de contraseña.
-
----
-
-## Licencia
-
-Aún no se ha definido una licencia en el contenido actual del proyecto.
